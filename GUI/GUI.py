@@ -2,6 +2,7 @@ import mysql.connector
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import *
 
 # Connect to your MySQL database
 try:
@@ -67,18 +68,127 @@ def log_login(user_id, name, user_type):
     project_db.commit()
     cursor.close()
 
+# Function to show the manage rooms panel
+def show_manage_rooms_panel():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
 
+    tk.Label(content_frame, text="Manage Rooms", font=("Helvetica", 16)).grid(row=0, column=0, columnspan=2, pady=20)
+
+    tk.Button(content_frame, text="Add Room", command=add_room).grid(row=1, column=0, pady=5)
+    tk.Button(content_frame, text="Delete Room", command=delete_room).grid(row=1, column=1, pady=5)
+    tk.Button(content_frame, text="Update Room Status", command=update_room_status).grid(row=2, column=0, pady=5)
+    tk.Button(content_frame, text="View Rooms", command=view_rooms).grid(row=2, column=1, pady=5)
+
+# Function to add a new room
+def add_room():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    def save_room():
+        room_number = entry_room_number.get()
+        room_type = entry_room_type.get()
+        room_status = entry_room_status.get()
+        cursor = project_db.cursor()
+        query = "INSERT INTO Rooms (room_number, type, status) VALUES (%s, %s, %s)"
+        values = (room_number, room_type, room_status)
+        cursor.execute(query, values)
+        project_db.commit()
+        cursor.close()
+        messagebox.showinfo("Success", "Room added successfully")
+        show_manage_rooms_panel()
+
+    tk.Label(content_frame, text="Add New Room").grid(row=0, column=0, columnspan=2, pady=10)
+    tk.Label(content_frame, text="Room Number").grid(row=1, column=0)
+    entry_room_number = tk.Entry(content_frame)
+    entry_room_number.grid(row=1, column=1)
+
+    tk.Label(content_frame, text="Room Type").grid(row=2, column=0)
+    entry_room_type = tk.Entry(content_frame)
+    entry_room_type.grid(row=2, column=1)
+
+    tk.Label(content_frame, text="Room Status").grid(row=3, column=0)
+    entry_room_status = tk.Entry(content_frame)
+    entry_room_status.grid(row=3, column=1)
+
+    tk.Button(content_frame, text="Save", command=save_room).grid(row=4, column=0, columnspan=2, pady=20)
+
+# Function to delete a room
+def delete_room():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    def confirm_delete():
+        room_number = entry_room_number.get()
+        cursor = project_db.cursor()
+        query = "DELETE FROM Rooms WHERE room_number = %s"
+        cursor.execute(query, (room_number,))
+        project_db.commit()
+        cursor.close()
+        messagebox.showinfo("Success", "Room deleted successfully")
+        show_manage_rooms_panel()
+
+    tk.Label(content_frame, text="Delete Room").grid(row=0, column=0, columnspan=2, pady=10)
+    tk.Label(content_frame, text="Room Number").grid(row=1, column=0)
+    entry_room_number = tk.Entry(content_frame)
+    entry_room_number.grid(row=1, column=1)
+
+    tk.Button(content_frame, text="Delete", command=confirm_delete).grid(row=2, column=0, columnspan=2, pady=20)
+
+# Function to update room status
+def update_room_status():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    def save_status():
+        room_number = entry_room_number.get()
+        new_status = entry_new_status.get()
+        cursor = project_db.cursor()
+        query = "UPDATE Rooms SET status = %s WHERE room_number = %s"
+        cursor.execute(query, (new_status, room_number))
+        project_db.commit()
+        cursor.close()
+        messagebox.showinfo("Success", "Room status updated successfully")
+        show_manage_rooms_panel()
+
+    tk.Label(content_frame, text="Update Room Status").grid(row=0, column=0, columnspan=2, pady=10)
+    tk.Label(content_frame, text="Room Number").grid(row=1, column=0)
+    entry_room_number = tk.Entry(content_frame)
+    entry_room_number.grid(row=1, column=1)
+
+    tk.Label(content_frame, text="New Status").grid(row=2, column=0)
+    entry_new_status = tk.Entry(content_frame)
+    entry_new_status.grid(row=2, column=1)
+
+    tk.Button(content_frame, text="Save", command=save_status).grid(row=3, column=0, columnspan=2, pady=20)
+
+# Function to view all rooms
+def view_rooms():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    cursor = project_db.cursor()
+    cursor.execute("SELECT * FROM Rooms")
+    rooms = cursor.fetchall()
+    cursor.close()
+
+    tk.Label(content_frame, text="Rooms", font=("Helvetica", 16)).grid(row=0, column=0, columnspan=2, pady=10)
+
+    for idx, room in enumerate(rooms, start=1):
+        tk.Label(content_frame, text=f"Room Number: {room[1]}, Type: {room[2]}, Status: {room[3]}").grid(row=idx, column=0, columnspan=2)
 
 # Function to open the admin panel
 def open_admin_panel():
+    global admin_panel, content_frame
+
     # Close the login window
     login_window.destroy()
     admin_panel = tk.Tk()
     admin_panel.title("Admin Panel")
 
     # Set dimensions and center the window
-    width = 775
-    height = 400
+    width = 800
+    height = 600
     screen_width = admin_panel.winfo_screenwidth()
     screen_height = admin_panel.winfo_screenheight()
     x = (screen_width / 2) - (width / 2)
@@ -86,45 +196,39 @@ def open_admin_panel():
     admin_panel.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
 
     # Define the structure of the admin panel
-    label = tk.Label(admin_panel, text="Admin Panel", font=("Helvetica", 16))
-    label.grid(row=0, column=0, pady=20)
+    nav_frame = tk.Frame(admin_panel)
+    nav_frame.grid(row=0, column=0, sticky="ns")
 
-    frame_admin = tk.LabelFrame(admin_panel, padx=10, pady=10 )
-    frame_admin.grid(row=0,column=0,padx=10,pady=10)
+    content_frame = tk.Frame(admin_panel)
+    content_frame.grid(row=0, column=1, sticky="nsew")
 
-    button_manage_rooms = tk.Button(frame_admin, text="Manage Rooms")
-    button_manage_rooms.grid(row=1, column=0, pady=5)
+    admin_panel.grid_columnconfigure(1, weight=1)
+    admin_panel.grid_rowconfigure(0, weight=1)
 
-    button_manage_reservations = tk.Button(frame_admin, text="Manage Reservations")
-    button_manage_reservations.grid(row=1, column=1, pady=5)
+    tk.Label(nav_frame, text="Admin Panel", font=("Helvetica", 16)).grid(row=0, column=0, pady=20)
 
-    button_process_billing = tk.Button(frame_admin, text="Process Billing")
-    button_process_billing.grid(row=1, column=2, pady=5)
-
-    button_manage_staff = tk.Button(frame_admin, text="Manage Staff")
-    button_manage_staff.grid(row=1, column=3, pady=5)
-
-    button_handle_maintenance = tk.Button(frame_admin, text="Handle Maintenance")
-    button_handle_maintenance.grid(row=1, column=4, pady=5)
-
-    button_manage_inventory = tk.Button(frame_admin, text="Manage Inventory")
-    button_manage_inventory.grid(row=1, column=5, pady=5)
-
-    button_generate_reports = tk.Button(frame_admin, text="Generate Reports")
-    button_generate_reports.grid(row=1, column=6, pady=5)
+    tk.Button(nav_frame, text="Manage Rooms", command=show_manage_rooms_panel).grid(row=1, column=0, pady=5)
+    tk.Button(nav_frame, text="Manage Reservations").grid(row=2, column=0, pady=5)
+    tk.Button(nav_frame, text="Process Billing").grid(row=3, column=0, pady=5)
+    tk.Button(nav_frame, text="Manage Staff").grid(row=4, column=0, pady=5)
+    tk.Button(nav_frame, text="Handle Maintenance").grid(row=5, column=0, pady=5)
+    tk.Button(nav_frame, text="Manage Inventory").grid(row=6, column=0, pady=5)
+    tk.Button(nav_frame, text="Generate Reports").grid(row=7, column=0, pady=5)
 
     admin_panel.mainloop()
 
 # Function to open the staff panel
 def open_staff_panel():
+    global staff_panel, content_frame
+
     # Close the login window
     login_window.destroy()
     staff_panel = tk.Tk()
     staff_panel.title("Staff Panel")
 
     # Set dimensions and center the window
-    width = 600
-    height = 400
+    width = 800
+    height = 600
     screen_width = staff_panel.winfo_screenwidth()
     screen_height = staff_panel.winfo_screenheight()
     x = (screen_width / 2) - (width / 2)
@@ -132,56 +236,52 @@ def open_staff_panel():
     staff_panel.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
 
     # Define the structure of the staff panel
-    label = tk.Label(staff_panel, text="Staff Panel", font=("Helvetica", 16))
-    label.grid(row=0, column=0, pady=20)
+    nav_frame = tk.Frame(staff_panel)
+    nav_frame.grid(row=0, column=0, sticky="ns")
 
-    frame_staff = tk.LabelFrame(staff_panel, padx=10, pady=10)
-    frame_staff.grid(row=0, column=0, padx=10, pady=10)
+    content_frame = tk.Frame(staff_panel)
+    content_frame.grid(row=0, column=1, sticky="nsew")
 
-    button_manage_reservations = tk.Button(frame_staff, text="Manage Reservations")
-    button_manage_reservations.grid(row=1, column=0, pady=5)
+    staff_panel.grid_columnconfigure(1, weight=1)
+    staff_panel.grid_rowconfigure(0, weight=1)
 
-    button_manage_rooms = tk.Button(frame_staff, text="Manage Rooms")
-    button_manage_rooms.grid(row=1, column=1, pady=5)
+    tk.Label(nav_frame, text="Staff Panel", font=("Helvetica", 16)).grid(row=0, column=0, pady=20)
 
-    button_process_billing = tk.Button(frame_staff, text="Process Billing")
-    button_process_billing.grid(row=1, column=2, pady=5)
-
-    button_handle_maintenance = tk.Button(frame_staff, text="Handle Maintenance")
-    button_handle_maintenance.grid(row=1, column=3, pady=5)
-
-    button_manage_inventory = tk.Button(frame_staff, text="Manage Inventory")
-    button_manage_inventory.grid(row=1, column=4, pady=5)
+    tk.Button(nav_frame, text="Manage Rooms", command=show_manage_rooms_panel).grid(row=1, column=0, pady=5)
+    tk.Button(nav_frame, text="Manage Reservations").grid(row=2, column=0, pady=5)
+    tk.Button(nav_frame, text="View Billing").grid(row=3, column=0, pady=5)
+    tk.Button(nav_frame, text="Request Maintenance").grid(row=4, column=0, pady=5)
+    tk.Button(nav_frame, text="View Inventory").grid(row=5, column=0, pady=5)
 
     staff_panel.mainloop()
 
-# Create the login window
+# Main login window
 login_window = tk.Tk()
 login_window.title("Hotel Management System - Login")
 
 # Set dimensions and center the window
-width = 325
-height = 275
+width = 350
+height = 300
 screen_width = login_window.winfo_screenwidth()
 screen_height = login_window.winfo_screenheight()
 x = (screen_width / 2) - (width / 2)
 y = (screen_height / 2) - (height / 2)
 login_window.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
 
-label_frame = tk.LabelFrame(login_window, text="Login", font=("Helvetica", 16), padx=60, pady=60, borderwidth=2, relief="groove")
-label_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew", )
+login_frame = tk.LabelFrame(login_window,padx=10, pady=10, text="Login")
+login_frame.grid(row=0, column=0, padx=10, pady=10, sticky=N+S+E+W)
 
-label_username = tk.Label(label_frame, text="Username")
-label_username.grid(row=0, column=0, pady=5)
-entry_username = tk.Entry(label_frame)
-entry_username.grid(row=0, column=1, pady=5)
+# Username Label and Entry
+tk.Label(login_frame, text="Username").grid(row=0, column=0, pady=10, padx=10)
+entry_username = tk.Entry(login_frame)
+entry_username.grid(row=0, column=1, pady=10, padx=10)
 
-label_password = tk.Label(label_frame, text="Password")
-label_password.grid(row=1, column=0, pady=5)
-entry_password = tk.Entry(label_frame, show="*")
-entry_password.grid(row=1, column=1, pady=5)
+# Password Label and Entry
+tk.Label(login_frame, text="Password").grid(row=1, column=0, pady=10, padx=10)
+entry_password = tk.Entry(login_frame, show="*")
+entry_password.grid(row=1, column=1, pady=10, padx=10)
 
-button_login = tk.Button(label_frame, text="Login", command=login)
-button_login.grid(row=2, column=0, columnspan=2, pady=5)
+# Login Button
+tk.Button(login_frame, text="Login", command=login).grid(row=2, column=0, columnspan=2, pady=20)
 
 login_window.mainloop()
