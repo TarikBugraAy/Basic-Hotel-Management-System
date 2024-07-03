@@ -77,7 +77,7 @@ def open_admin_panel():
     admin_panel.title("Admin Panel")
 
     # Set dimensions and center the window
-    width = 400
+    width = 775
     height = 400
     screen_width = admin_panel.winfo_screenwidth()
     screen_height = admin_panel.winfo_screenheight()
@@ -87,28 +87,31 @@ def open_admin_panel():
 
     # Define the structure of the admin panel
     label = tk.Label(admin_panel, text="Admin Panel", font=("Helvetica", 16))
-    label.pack(pady=20)
+    label.grid(row=0, column=0, pady=20)
 
-    button_manage_rooms = tk.Button(admin_panel, text="Manage Rooms")
-    button_manage_rooms.pack(pady=5)
+    frame_admin = tk.LabelFrame(admin_panel, padx=10, pady=10 )
+    frame_admin.grid(row=0,column=0,padx=10,pady=10)
 
-    button_manage_reservations = tk.Button(admin_panel, text="Manage Reservations")
-    button_manage_reservations.pack(pady=5)
+    button_manage_rooms = tk.Button(frame_admin, text="Manage Rooms")
+    button_manage_rooms.grid(row=1, column=0, pady=5)
 
-    button_process_billing = tk.Button(admin_panel, text="Process Billing")
-    button_process_billing.pack(pady=5)
+    button_manage_reservations = tk.Button(frame_admin, text="Manage Reservations")
+    button_manage_reservations.grid(row=1, column=1, pady=5)
 
-    button_manage_staff = tk.Button(admin_panel, text="Manage Staff")
-    button_manage_staff.pack(pady=5)
+    button_process_billing = tk.Button(frame_admin, text="Process Billing")
+    button_process_billing.grid(row=1, column=2, pady=5)
 
-    button_handle_maintenance = tk.Button(admin_panel, text="Handle Maintenance")
-    button_handle_maintenance.pack(pady=5)
+    button_manage_staff = tk.Button(frame_admin, text="Manage Staff")
+    button_manage_staff.grid(row=1, column=3, pady=5)
 
-    button_manage_inventory = tk.Button(admin_panel, text="Manage Inventory")
-    button_manage_inventory.pack(pady=5)
+    button_handle_maintenance = tk.Button(frame_admin, text="Handle Maintenance")
+    button_handle_maintenance.grid(row=1, column=4, pady=5)
 
-    button_generate_reports = tk.Button(admin_panel, text="Generate Reports")
-    button_generate_reports.pack(pady=5)
+    button_manage_inventory = tk.Button(frame_admin, text="Manage Inventory")
+    button_manage_inventory.grid(row=1, column=5, pady=5)
+
+    button_generate_reports = tk.Button(frame_admin, text="Generate Reports")
+    button_generate_reports.grid(row=1, column=6, pady=5)
 
     admin_panel.mainloop()
 
@@ -120,7 +123,7 @@ def open_staff_panel():
     staff_panel.title("Staff Panel")
 
     # Set dimensions and center the window
-    width = 400
+    width = 600
     height = 400
     screen_width = staff_panel.winfo_screenwidth()
     screen_height = staff_panel.winfo_screenheight()
@@ -130,19 +133,25 @@ def open_staff_panel():
 
     # Define the structure of the staff panel
     label = tk.Label(staff_panel, text="Staff Panel", font=("Helvetica", 16))
-    label.pack(pady=20)
+    label.grid(row=0, column=0, pady=20)
 
-    button_manage_reservations = tk.Button(staff_panel, text="Manage Reservations")
-    button_manage_reservations.pack(pady=5)
+    frame_staff = tk.LabelFrame(staff_panel, padx=10, pady=10)
+    frame_staff.grid(row=0, column=0, padx=10, pady=10)
 
-    button_process_billing = tk.Button(staff_panel, text="Process Billing")
-    button_process_billing.pack(pady=5)
+    button_manage_reservations = tk.Button(frame_staff, text="Manage Reservations")
+    button_manage_reservations.grid(row=1, column=0, pady=5)
 
-    button_handle_maintenance = tk.Button(staff_panel, text="Handle Maintenance")
-    button_handle_maintenance.pack(pady=5)
+    button_manage_rooms = tk.Button(frame_staff, text="Manage Rooms")
+    button_manage_rooms.grid(row=1, column=1, pady=5)
 
-    button_manage_inventory = tk.Button(staff_panel, text="Manage Inventory")
-    button_manage_inventory.pack(pady=5)
+    button_process_billing = tk.Button(frame_staff, text="Process Billing")
+    button_process_billing.grid(row=1, column=2, pady=5)
+
+    button_handle_maintenance = tk.Button(frame_staff, text="Handle Maintenance")
+    button_handle_maintenance.grid(row=1, column=3, pady=5)
+
+    button_manage_inventory = tk.Button(frame_staff, text="Manage Inventory")
+    button_manage_inventory.grid(row=1, column=4, pady=5)
 
     staff_panel.mainloop()
 
