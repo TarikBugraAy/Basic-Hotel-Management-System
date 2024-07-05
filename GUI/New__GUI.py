@@ -54,9 +54,9 @@ def log_login(username):
     project_db.commit()
 
 # Function to clear existing management frames
-def clear_management_frames(frame):
-    frame_panel = frame
-    for widget in frame_panel.grid_slaves(row=1, column=0):
+def clear_management_frames(panel):
+    x_panel = panel
+    for widget in x_panel.grid_slaves(row=1, column=0):
         widget.destroy()
 
 # Function to display manage staff options
@@ -81,8 +81,8 @@ def manage_staff_options():
     view_staff_button.grid(row=0, column=3, padx=10, pady=10)
 
 
-def manage_rooms_options(frame):
-    frame_panel = frame
+def manage_rooms_options(x_frame):
+    frame_panel = x_frame
     clear_management_frames(frame_panel)
     manage_rooms_frame = tk.Frame(frame_panel)
     manage_rooms_frame.grid(row=1, column=0, columnspan=7, pady=10)
@@ -101,6 +101,50 @@ def manage_rooms_options(frame):
 
     view_room_button = tk.Button(manage_rooms_lframe, text="View Rooms", font=("Times New Roman", 12), command=None)
     view_room_button.grid(row=0, column=3, padx=10, pady=10)
+
+#Manage Reservations Options
+def manage_reservations_options(x_frame):
+    frame_panel=x_frame
+    clear_management_frames(frame_panel)
+
+    manage_reservations_frame=tk.Frame(frame_panel)
+    manage_reservations_frame.grid(row=1,column=0,columnspan=7,pady=10)
+
+    manage_reservations_lframe = tk.LabelFrame(manage_reservations_frame,padx=10,pady=10)
+    manage_reservations_lframe.grid(row=1, column=0, columnspan=7, pady=10)
+
+    add_reservations_button = tk.Button(manage_reservations_lframe, text="Add Reservations", font=("Times New Roman", 12), command=None)
+    add_reservations_button.grid(row=0,column=0, padx=10, pady=10)
+
+    delete_reservations_button = tk.Button(manage_reservations_lframe, text="Delete Reservations",font=("Times New Roman", 12), command=None)
+    delete_reservations_button.grid(row=0,column=1,padx=10,pady=10)
+
+    update_reservations_button = tk.Button(manage_reservations_lframe, text="Update Reservations",font=("Times New Roman", 12), command=None)
+    update_reservations_button.grid(row=0, column=2, padx=10,pady=10)
+
+# Function to manage login logs
+def manage_login_logs():
+    clear_management_frames(admin_panel)
+    manage_logs_frame = tk.Frame(admin_panel)
+    manage_logs_frame.grid(row=1, column=0, columnspan=7, pady=10)
+
+    manage_logs_lframe = tk.LabelFrame(manage_logs_frame, text="Login Logs", padx=10, pady=10, font=("Times New Roman", 12))
+    manage_logs_lframe.grid(row=1, column=0, columnspan=7, pady=10)
+
+    logs_text = tk.Text(manage_logs_lframe, height=20, width=100, font=("Times New Roman", 12))
+    logs_text.grid(row=0, column=0, padx=10, pady=10)
+
+    scrollbar = tk.Scrollbar(manage_logs_lframe, command=logs_text.yview)
+    logs_text.config(yscrollcommand=scrollbar.set)
+    scrollbar.grid(row=0, column=1, sticky='nsew')
+
+    cursor = project_db.cursor()
+    cursor.execute("SELECT u.name, u.role, l.login_time FROM log l JOIN users u ON l.user_id = u.user_id ORDER BY l.login_time DESC")
+    logs = cursor.fetchall()
+
+    for log in logs:
+        logs_text.insert(tk.END, f"Name: {log[0]}, Role: {log[1]}, Login Time: {log[2]}\n")
+
 
 # Open Admin Panel
 def open_admin_panel():
@@ -130,7 +174,7 @@ def open_admin_panel():
     manage_rooms = tk.Button(admin_frame, text="Manage Rooms", font=("Times New Roman", 12), command=lambda:manage_rooms_options(admin_panel))
     manage_rooms.grid(row=0, column=1, padx=10, pady=10)
 
-    manage_reservations = tk.Button(admin_frame, text="Manage Reservations", font=("Times New Roman", 12), command=None)
+    manage_reservations = tk.Button(admin_frame, text="Manage Reservations", font=("Times New Roman", 12), command=lambda:manage_reservations_options(admin_panel))
     manage_reservations.grid(row=0, column=2, padx=10, pady=10)
 
     manage_payments = tk.Button(admin_frame, text="Manage Payments", font=("Times New Roman", 12), command=None)
@@ -142,7 +186,7 @@ def open_admin_panel():
     manage_reports = tk.Button(admin_frame, text="Manage Reports", font=("Times New Roman", 12), command=None)
     manage_reports.grid(row=0, column=5, padx=10, pady=10)
 
-    manage_logs = tk.Button(admin_frame, text="Manage Logs", font=("Times New Roman", 12), command=None)
+    manage_logs = tk.Button(admin_frame, text="Manage Logs", font=("Times New Roman", 12), command=manage_login_logs)
     manage_logs.grid(row=0, column=6, padx=10, pady=10)
 
     admin_panel.mainloop()
@@ -170,7 +214,7 @@ def open_staff_panel():
     manage_rooms = tk.Button(staff_frame, text="Manage Rooms", font=("Times New Roman", 12), command=lambda:manage_rooms_options(staff_panel))
     manage_rooms.grid(row=0, column=1, padx=10, pady=10)
 
-    manage_reservations = tk.Button(staff_frame, text="Manage Reservations", font=("Times New Roman", 12), command=None)
+    manage_reservations = tk.Button(staff_frame, text="Manage Reservations", font=("Times New Roman", 12), command=lambda:manage_reservations_options(staff_panel))
     manage_reservations.grid(row=0, column=2, padx=10, pady=10)
 
     manage_payments = tk.Button(staff_frame, text="Manage Payments", font=("Times New Roman", 12), command=None)
