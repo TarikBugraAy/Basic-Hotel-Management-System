@@ -177,6 +177,66 @@ def view_rooms():
     for idx, room in enumerate(rooms, start=1):
         tk.Label(content_frame, text=f"Room Number: {room[1]}, Type: {room[2]}, Status: {room[3]}").grid(row=idx, column=0, columnspan=2)
 
+# Function to view room status
+def view_room_status():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    cursor = project_db.cursor()
+    cursor.execute("SELECT room_number, status FROM Rooms")
+    rooms = cursor.fetchall()
+    cursor.close()
+
+    tk.Label(content_frame, text="Room Status", font=("Helvetica", 16)).grid(row=0, column=0, columnspan=2, pady=10)
+
+    for idx, room in enumerate(rooms, start=1):
+        tk.Label(content_frame, text=f"Room Number: {room[0]}, Status: {room[1]}").grid(row=idx, column=0, columnspan=2)
+
+# Function to view room details
+def view_room_details():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    cursor = project_db.cursor()
+    cursor.execute("SELECT * FROM Rooms")
+    rooms = cursor.fetchall()
+    cursor.close()
+
+    tk.Label(content_frame, text="Room Details", font=("Helvetica", 16)).grid(row=0, column=0, columnspan=3, pady=10)
+
+    for idx, room in enumerate(rooms, start=1):
+        tk.Label(content_frame, text=f"Room Number: {room[1]}").grid(row=idx, column=0)
+        tk.Label(content_frame, text=f"Type: {room[2]}").grid(row=idx, column=1)
+        tk.Label(content_frame, text=f"Status: {room[3]}").grid(row=idx, column=2)
+
+# Function to request maintenance
+def request_maintenance():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    def submit_request():
+        room_number = entry_room_number.get()
+        issue_description = entry_issue_description.get("1.0", "end-1c")
+        cursor = project_db.cursor()
+        query = "INSERT INTO MaintenanceRequests (room_number, issue_description, status) VALUES (%s, %s, 'Pending')"
+        values = (room_number, issue_description)
+        cursor.execute(query, values)
+        project_db.commit()
+        cursor.close()
+        messagebox.showinfo("Success", "Maintenance request submitted successfully")
+        show_manage_rooms_panel()
+
+    tk.Label(content_frame, text="Request Maintenance").grid(row=0, column=0, columnspan=2, pady=10)
+    tk.Label(content_frame, text="Room Number").grid(row=1, column=0)
+    entry_room_number = tk.Entry(content_frame)
+    entry_room_number.grid(row=1, column=1)
+
+    tk.Label(content_frame, text="Issue Description").grid(row=2, column=0)
+    entry_issue_description = tk.Text(content_frame, height=5, width=40)
+    entry_issue_description.grid(row=2, column=1)
+
+    tk.Button(content_frame, text="Submit", command=submit_request).grid(row=3, column=0, columnspan=2, pady=20)
+
 # Function to open the admin panel
 def open_admin_panel():
     global admin_panel, content_frame
@@ -247,11 +307,10 @@ def open_staff_panel():
 
     tk.Label(nav_frame, text="Staff Panel", font=("Helvetica", 16)).grid(row=0, column=0, pady=20)
 
-    tk.Button(nav_frame, text="Manage Rooms", command=show_manage_rooms_panel).grid(row=1, column=0, pady=5)
-    tk.Button(nav_frame, text="Manage Reservations").grid(row=2, column=0, pady=5)
-    tk.Button(nav_frame, text="View Billing").grid(row=3, column=0, pady=5)
-    tk.Button(nav_frame, text="Request Maintenance").grid(row=4, column=0, pady=5)
-    tk.Button(nav_frame, text="View Inventory").grid(row=5, column=0, pady=5)
+    tk.Button(nav_frame, text="View Room Status", command=view_room_status).grid(row=1, column=0, pady=5)
+    tk.Button(nav_frame, text="Update Room Status", command=update_room_status).grid(row=2, column=0, pady=5)
+    tk.Button(nav_frame, text="View Room Details", command=view_room_details).grid(row=3, column=0, pady=5)
+    tk.Button(nav_frame, text="Request Maintenance", command=request_maintenance).grid(row=4, column=0, pady=5)
 
     staff_panel.mainloop()
 
@@ -268,7 +327,7 @@ x = (screen_width / 2) - (width / 2)
 y = (screen_height / 2) - (height / 2)
 login_window.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
 
-login_frame = tk.LabelFrame(login_window,padx=10, pady=10, text="Login")
+login_frame = tk.LabelFrame(login_window, padx=10, pady=10, text="Login")
 login_frame.grid(row=0, column=0, padx=10, pady=10, sticky=N+S+E+W)
 
 # Username Label and Entry

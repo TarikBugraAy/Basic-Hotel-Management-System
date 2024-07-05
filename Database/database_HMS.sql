@@ -10,6 +10,9 @@ CREATE TABLE Rooms (
     status VARCHAR(50)
 );
 
+ALTER TABLE Rooms ADD CONSTRAINT unique_room_number UNIQUE (room_number);
+
+
 -- Guests Table
 CREATE TABLE Guests (
     guest_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -77,4 +80,12 @@ CREATE TABLE Charges (
     FOREIGN KEY (reservation_id) REFERENCES Reservations(reservation_id)
 );
 
---maintenance table--
+CREATE TABLE MaintenanceRequests (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_number INT NOT NULL,
+    issue_description TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_number) REFERENCES Rooms(room_number)
+);
+

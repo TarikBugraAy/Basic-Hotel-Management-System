@@ -1,0 +1,89 @@
+@startuml
+
+entity Rooms {
+  * room_id : INT <<PK>>
+  --
+  room_number : INT <<UNIQUE>>
+  type : VARCHAR(50)
+  status : VARCHAR(50)
+}
+
+entity Guests {
+  * guest_id : INT <<PK>>
+  --
+  first_name : VARCHAR(100)
+  last_name : VARCHAR(100)
+  email : VARCHAR(100)
+  phone : VARCHAR(20)
+  address : VARCHAR(255)
+  preferences : TEXT
+  past_stays : TEXT
+}
+
+entity Reservations {
+  * reservation_id : INT <<PK>>
+  --
+  room_id : INT <<FK>>
+  guest_id : INT <<FK>>
+  --
+  start_date : DATE
+  end_date : DATE
+}
+
+entity Billing {
+  * bill_id : INT <<PK>>
+  --
+  guest_id : INT <<FK>>
+  --
+  amount : DECIMAL(10, 2)
+  bill_contents : TEXT
+}
+
+entity Users {
+  * user_id : INT <<PK>>
+  --
+  name : VARCHAR(100)
+  role : ENUM('admin', 'staff')
+  username : VARCHAR(100) <<UNIQUE>>
+  password : VARCHAR(255)
+}
+
+entity Log {
+  * log_id : INT <<PK>>
+  --
+  user_id : INT <<FK>>
+  --
+  login_time : DATETIME
+}
+
+entity Charges {
+  * charge_id : INT <<PK>>
+  --
+  guest_id : INT <<FK>>
+  --
+  description : TEXT
+  amount : DECIMAL(10, 2)
+  charge_date : DATETIME
+}
+
+entity MaintenanceRequests {
+  * request_id : INT <<PK>>
+  --
+  room_id : INT <<FK>>
+  --
+  issue_description : TEXT
+  status : VARCHAR(20) <<DEFAULT: 'Pending'>>
+  request_date : TIMESTAMP <<DEFAULT: CURRENT_TIMESTAMP>>
+  user_id : INT <<FK>>
+}
+
+Rooms ||--o{ Reservations : "has"
+Guests ||--o{ Reservations : "makes"
+Guests ||--o{ Billing : "receives"
+Users ||--o{ Log : "generates"
+Guests ||--o{ Charges : "has"
+Rooms ||--o{ MaintenanceRequests : "has"
+Users ||--o{ MaintenanceRequests : "creates"
+
+@enduml
+
