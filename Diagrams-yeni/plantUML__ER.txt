@@ -1,0 +1,229 @@
+@startuml
+left to right direction
+!define TABLE(x) class x << (T,#FFAAAA) >>
+
+skinparam classAttributeIconSize 0
+
+
+
+' Define the tables
+TABLE(Users) {
+  + INT user_id <<PK>> 
+  --
+  name: VARCHAR(100)
+  role:
+  username: VARCHAR(100)
+  password: VARCHAR(255)
+  phone: VARCHAR(20)
+  address: VARCHAR(255)
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Rooms) {
+  + INT room_id <<PK>>
+  --
+  room_number: INT
+  type: VARCHAR(50)
+  status: VARCHAR(50)
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Guests) {
+  + INT guest_id <<PK>>
+  --
+  first_name: VARCHAR(100)
+  last_name: VARCHAR(100)
+  email: VARCHAR(100)
+  phone: VARCHAR(20)
+  address: VARCHAR(255)
+  preferences: TEXT
+  past_stays: TEXT
+  id_type: VARCHAR(50)
+  id_number: VARCHAR(100)
+  issued_country: VARCHAR(100)
+  expiry_date: DATE
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Reservations) {
+  + INT reservation_id <<PK>>
+  --
+  room_id: INT <<FK>>
+  guest_id: INT <<FK>>
+  start_date: DATE
+  end_date: DATE
+  status: VARCHAR(50)
+  payment_status: VARCHAR(50)
+  special_requests: TEXT
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Billing) {
+  + INT bill_id <<PK>>
+  --
+  guest_id: INT <<FK>>
+  amount: DECIMAL(10, 2)
+  bill_contents: TEXT
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Log) {
+  + INT log_id <<PK>>
+  --
+  user_id: INT <<FK>>
+  login_time: DATETIME
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Charges) {
+  + INT charge_id <<PK>>
+  --
+  guest_id: INT <<FK>>
+  description: TEXT
+  amount: DECIMAL(10, 2)
+  charge_date: DATETIME
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(MaintenanceRequests) {
+  + INT request_id <<PK>>
+  --
+  room_id: INT <<FK>>
+  issue_description: TEXT
+  status: VARCHAR(20)
+  request_date: DATETIME
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Housekeeping) {
+  + INT housekeeping_id <<PK>>
+  --
+  room_id: INT <<FK>>
+  task_description: TEXT
+  task_date: DATETIME
+  status: VARCHAR(20)
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Amenities) {
+  + INT amenity_id <<PK>>
+  --
+  name: VARCHAR(100)
+  description: TEXT
+  availability_status: VARCHAR(20)
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Feedback) {
+  + INT feedback_id <<PK>>
+  --
+  guest_id: INT <<FK>>
+  comments: TEXT
+  rating: INT
+  feedback_date: DATETIME
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Inventory) {
+  + INT inventory_id <<PK>>
+  --
+  item_name: VARCHAR(100)
+  quantity: INT
+  status: VARCHAR(50)
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+TABLE(Events) {
+  + INT event_id <<PK>>
+  --
+  name: VARCHAR(100)
+  description: TEXT
+  start_date: DATETIME
+  end_date: DATETIME
+  organizer: VARCHAR(100)
+  created_by: INT <<FK>>
+  updated_by: INT <<FK>>
+  created_at: DATETIME
+  updated_at: DATETIME
+}
+
+' Relationships
+Users --o{ Rooms : creates
+Users --o{ Rooms : updates
+
+Users --o{ Guests : registers
+Users --o{ Guests : updates
+
+Users --o{ Reservations : registers
+Users --o{ Reservations : updates
+
+Users --o{ Billing : issues
+Users --o{ Billing : updates
+
+Users --o{ Log : logs
+
+Users --o{ Charges : creates
+Users --o{ Charges : updates
+
+Users --o{ MaintenanceRequests : submits
+Users --o{ MaintenanceRequests : updates
+
+Users --o{ Housekeeping : assigns
+Users --o{ Housekeeping : updates
+
+Users --o{ Amenities : manages
+Users --o{ Amenities : updates
+
+Users --o{ Feedback : receives
+Users --o{ Feedback : updates
+
+Users --o{ Inventory : manages
+Users --o{ Inventory : updates
+
+Users --o{ Events : registers
+Users --o{ Events : updates
+
+Rooms }o--o{ MaintenanceRequests : requires
+Rooms }o--o{ Housekeeping : needs
+Rooms }o--o{ Reservations : accommodates
+
+Guests }o--o{ Reservations : has
+Guests }o--o{ Billing : receives
+Guests }o--o{ Charges : incurs
+Guests }o--o{ Feedback : gives
+@enduml
+
+
+

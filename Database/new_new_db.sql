@@ -6,6 +6,8 @@ USE NHMS;
 CREATE TABLE Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    surname VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+	position VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
     role ENUM('admin', 'staff') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
     username VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
     password VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -210,10 +212,12 @@ CREATE TABLE Events (
     start_date DATETIME NOT NULL,
     end_date DATETIME NOT NULL,
     organizer VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    location_id INT NOT NULL,
     created_by INT NOT NULL,
     updated_by INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (location_id) REFERENCES Rooms(room_id),
     FOREIGN KEY (created_by) REFERENCES Users(user_id),
     FOREIGN KEY (updated_by) REFERENCES Users(user_id)
 );
