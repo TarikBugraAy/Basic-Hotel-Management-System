@@ -80,42 +80,37 @@ class HotelManagementSystem:
         user_info = f"Welcome {user['name']} {user['surname']}\nRole: {user['role']}"
         tk.Label(self.nav_frame, text=user_info, font=("Arial", 14), bg="lightgrey").pack(pady=10)
 
-        buttons = []
         if is_admin:
-            buttons = [
-                ("View Login Logs", self.view_login_logs),
-                ("Manage Users", self.dummy_function),
-                ("Manage Rooms", self.dummy_function),
-                ("Manage Guests", self.dummy_function),
-                ("Manage Reservations", self.dummy_function),
-                ("Manage Billing", self.dummy_function),
-                ("Manage Charges", self.dummy_function),
-                ("Manage Maintenance Requests", self.dummy_function),
-                ("Manage Housekeeping", self.dummy_function),
-                ("Manage Amenities", self.dummy_function),
-                ("Manage Feedback", self.dummy_function),
-                ("Manage Inventory", self.dummy_function),
-                ("Manage Events", self.dummy_function),
-            ]
+            self.add_nav_button("View Login Logs", self.view_login_logs)
+            self.add_nav_button("Manage Users", lambda: self.show_sub_options("Manage Users", self.admin_user_options()))
+            self.add_nav_button("Manage Rooms", lambda: self.show_sub_options("Manage Rooms", self.admin_rooms_options()))
+            self.add_nav_button("Manage Guests", lambda: self.show_sub_options("Manage Guests", self.dummy_sub_options()))
+            self.add_nav_button("Manage Reservations", lambda: self.show_sub_options("Manage Reservations", self.dummy_sub_options()))
+            self.add_nav_button("Manage Billing", lambda: self.show_sub_options("Manage Billing", self.dummy_sub_options()))
+            self.add_nav_button("Manage Charges", lambda: self.show_sub_options("Manage Charges", self.dummy_sub_options()))
+            self.add_nav_button("Manage Maintenance Requests", lambda: self.show_sub_options("Manage Maintenance Requests", self.dummy_sub_options()))
+            self.add_nav_button("Manage Housekeeping", lambda: self.show_sub_options("Manage Housekeeping", self.dummy_sub_options()))
+            self.add_nav_button("Manage Amenities", lambda: self.show_sub_options("Manage Amenities", self.dummy_sub_options()))
+            self.add_nav_button("Manage Feedback", lambda: self.show_sub_options("Manage Feedback", self.dummy_sub_options()))
+            self.add_nav_button("Manage Inventory", lambda: self.show_sub_options("Manage Inventory", self.dummy_sub_options()))
+            self.add_nav_button("Manage Events", lambda: self.show_sub_options("Manage Events", self.dummy_sub_options()))
         else:
-            buttons = [
-                ("View Reservations", self.dummy_function),
-                ("Update Room Status", self.dummy_function),
-                ("View Guests", self.dummy_function),
-                ("View Billing", self.dummy_function),
-                ("View Charges", self.dummy_function),
-                ("View Maintenance Requests", self.dummy_function),
-                ("Update Housekeeping", self.dummy_function),
-                ("View Amenities", self.dummy_function),
-                ("View Feedback", self.dummy_function),
-                ("View Inventory", self.dummy_function),
-                ("View Events", self.dummy_function),
-            ]
-
-        for text, command in buttons:
-            tk.Button(self.nav_frame, text=text, command=command, font=("Arial", 12), width=25).pack(pady=2)
+            self.add_nav_button("View Reservations", lambda: self.show_sub_options("View Reservations", self.dummy_sub_options()))
+            self.add_nav_button("Update Room Status", lambda: self.show_sub_options("Update Room Status", self.dummy_sub_options()))
+            self.add_nav_button("View Guests", lambda: self.show_sub_options("View Guests", self.dummy_sub_options()))
+            self.add_nav_button("View Billing", lambda: self.show_sub_options("View Billing", self.dummy_sub_options()))
+            self.add_nav_button("View Charges", lambda: self.show_sub_options("View Charges", self.dummy_sub_options()))
+            self.add_nav_button("View Maintenance Requests", lambda: self.show_sub_options("View Maintenance Requests", self.dummy_sub_options()))
+            self.add_nav_button("Update Housekeeping", lambda: self.show_sub_options("Update Housekeeping", self.dummy_sub_options()))
+            self.add_nav_button("View Amenities", lambda: self.show_sub_options("View Amenities", self.dummy_sub_options()))
+            self.add_nav_button("View Feedback", lambda: self.show_sub_options("View Feedback", self.dummy_sub_options()))
+            self.add_nav_button("View Inventory", lambda: self.show_sub_options("View Inventory", self.dummy_sub_options()))
+            self.add_nav_button("View Events", lambda: self.show_sub_options("View Events", self.dummy_sub_options()))
 
         tk.Button(self.nav_frame, text="Logout", command=self.create_login_frame, font=("Arial", 12), width=25).pack(pady=20)
+
+    def add_nav_button(self, text, command):
+        tk.Button(self.nav_frame, text=text, command=command, font=("Arial", 12), width=25).pack(pady=2)
 
     def create_content_frame(self):
         self.content_frame = tk.Frame(self.root)
@@ -168,6 +163,36 @@ class HotelManagementSystem:
 
         for log in logs:
             tree.insert('', tk.END, values=(log['log_id'], log['username'], log['name'], log['surname'], log['position'], log['role'], log['login_time']))
+
+    def show_sub_options(self, main_option, sub_options):
+        self.clear_content_frame()
+        tk.Label(self.content_frame, text=f"{main_option} Options", font=("Arial", 18)).pack(pady=10)
+
+        for text, command in sub_options.items():
+            tk.Button(self.content_frame, text=text, command=command, font=("Arial", 14)).pack(pady=5)
+
+    def admin_user_options(self):
+        return {
+            "Add User": self.dummy_function,
+            "Delete User": self.dummy_function,
+            "Update User": self.dummy_function,
+            "View Users": self.dummy_function,
+        }
+
+    def admin_rooms_options(self):
+        return {
+            "Add Room": self.dummy_function,
+            "Delete Room": self.dummy_function,
+            "Update Room": self.dummy_function,
+            "View Rooms": self.dummy_function, # View everything about rooms; maintaince, housekeeping, reservations, occupancy etc.
+        }
+
+    def dummy_sub_options(self):
+        return {
+            "Sub Option 1": self.dummy_function,
+            "Sub Option 2": self.dummy_function,
+            "Sub Option 3": self.dummy_function,
+        }
 
     def clear_frame(self):
         for widget in self.root.winfo_children():
