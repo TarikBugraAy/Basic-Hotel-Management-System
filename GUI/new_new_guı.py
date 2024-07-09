@@ -1,284 +1,186 @@
-import mysql.connector
-
-class Database:
-    def __init__(self, host, user, password, port, database):
-        self.host = host
-        self.user = user
-        self.password = password
-        self.port = port
-        self.database = database
-        self.connection = self.connect_to_database()
-
-    def connect_to_database(self):
-        try:
-            connection = mysql.connector.connect(
-                host=self.host,
-                user=self.user,
-                password=self.password,
-                port=self.port,
-                database=self.database
-            )
-            return connection
-        except mysql.connector.Error as err:
-            print(f"Error: {err}")
-            return None
-
-    def verify_user(self, username, password):
-        cursor = self.connection.cursor()
-        query = "SELECT user_id, name, role FROM Users WHERE username = %s AND password = %s"
-        cursor.execute(query, (username, password))
-        user = cursor.fetchone()
-        cursor.close()
-        return user
-
-    def log_user_login(self, user_id):
-        cursor = self.connection.cursor()
-        query = "INSERT INTO Log (user_id, login_time) VALUES (%s, NOW())"
-        cursor.execute(query, (user_id,))
-        self.connection.commit()
-        cursor.close()
-
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
+import mysql.connector
+from datetime import datetime
 
-class LoginApp:
-    def __init__(self, db):
-        self.db = db
-        self.login_window = tk.Tk()
-        self.setup_login_window()
+# Database connection
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'tarik7172',
+    'port': 3306,
+    'database': 'NHMS'
+}
 
-    def setup_login_window(self):
-        self.login_window.title("Hotel Management System - Login")
+class HotelManagementSystem:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Hotel Management System")
+        self.connection = mysql.connector.connect(**db_config)
+        self.create_login_frame()
 
-        width = 400
-        height = 300
-        screen_width = self.login_window.winfo_screenwidth()
-        screen_height = self.login_window.winfo_screenheight()
-        x = (screen_width / 2) - (width / 2)
-        y = (screen_height / 2) - (height / 2)
-        self.login_window.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
+    def create_login_frame(self):
+        self.clear_frame()
+        self.login_frame = tk.Frame(self.root)
+        self.login_frame.grid(row=0, column=0, padx=10, pady=10)
 
-        tk.Label(self.login_window, text="Username", font=("Times New Roman", 14)).pack(pady=10)
-        self.username_entry = tk.Entry(self.login_window, font=("Times New Roman", 14))
-        self.username_entry.pack(pady=10)
+        tk.Label(self.login_frame, text="Hotel Management System", font=("Arial", 24)).grid(row=0, column=0, columnspan=2, pady=10)
+        tk.Label(self.login_frame, text="Username", font=("Arial", 14)).grid(row=1, column=0, padx=5, pady=5)
+        tk.Label(self.login_frame, text="Password", font=("Arial", 14)).grid(row=2, column=0, padx=5, pady=5)
 
-        tk.Label(self.login_window, text="Password", font=("Times New Roman", 14)).pack(pady=10)
-        self.password_entry = tk.Entry(self.login_window, show='*', font=("Times New Roman", 14))
-        self.password_entry.pack(pady=10)
+        self.username_entry = tk.Entry(self.login_frame, font=("Arial", 14))
+        self.username_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.password_entry = tk.Entry(self.login_frame, show='*', font=("Arial", 14))
+        self.password_entry.grid(row=2, column=1, padx=5, pady=5)
 
-        login_button = tk.Button(self.login_window, text="Login", font=("Times New Roman", 14), command=self.login)
-        login_button.pack(pady=20)
-
-        self.login_window.mainloop()
+        tk.Button(self.login_frame, text="Login", command=self.login, font=("Arial", 14)).grid(row=3, column=0, columnspan=2, pady=10)
 
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        user = self.db.verify_user(username, password)
+
+        cursor = self.connection.cursor(dictionary=True)
+        query = "SELECT * FROM Users WHERE username=%s AND password=%s"
+        cursor.execute(query, (username, password))
+        user = cursor.fetchone()
+        cursor.close()
 
         if user:
-            user_id, name, role = user
-            self.db.log_user_login(user_id)
-            self.login_window.destroy()
-            if role == 'admin':
-                AdminPanel(self.db)
-            elif role == 'staff':
-                StaffPanel(self.db)
+            self.log_login(user['user_id'])
+            if user['role'] == 'admin':
+                self.create_admin_panel(user)
+            else:
+                self.create_staff_panel(user)
         else:
             messagebox.showerror("Error", "Invalid username or password")
 
-import tkinter as tk
+    def log_login(self, user_id):
+        cursor = self.connection.cursor()
+        query = "INSERT INTO Log (user_id, login_time) VALUES (%s, %s)"
+        cursor.execute(query, (user_id, datetime.now()))
+        self.connection.commit()
+        cursor.close()
 
-class AdminPanel:
-    def __init__(self, db):
-        self.db = db
-        self.admin_panel = tk.Tk()
-        self.setup_admin_panel()
+    def create_admin_panel(self, user):
+        self.clear_frame()
+        self.create_navbar(user, is_admin=True)
+        self.create_content_frame()
+        self.show_welcome_message(user)
 
-    def setup_admin_panel(self):
-        self.admin_panel.title("Hotel Management System - Admin Panel")
+    def create_staff_panel(self, user):
+        self.clear_frame()
+        self.create_navbar(user, is_admin=False)
+        self.create_content_frame()
+        self.show_welcome_message(user)
 
-        width = 800
-        height = 600
-        screen_width = self.admin_panel.winfo_screenwidth()
-        screen_height = self.admin_panel.winfo_screenheight()
-        x = (screen_width / 2) - (width / 2)
-        y = (screen_height / 2) - (height / 2)
-        self.admin_panel.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
+    def create_navbar(self, user, is_admin):
+        self.nav_frame = tk.Frame(self.root, bg="lightgrey")
+        self.nav_frame.grid(row=0, column=0, rowspan=2, sticky='ns')
+        
+        user_info = f"Welcome {user['name']} {user['surname']}\nRole: {user['role']}"
+        tk.Label(self.nav_frame, text=user_info, font=("Arial", 14), bg="lightgrey").pack(pady=10)
 
-        admin_frame = tk.LabelFrame(self.admin_panel, padx=10, pady=10, font=("Times New Roman", 12))
-        admin_frame.grid(row=0, column=0, padx=10, pady=10)
+        buttons = []
+        if is_admin:
+            buttons = [
+                ("View Login Logs", self.view_login_logs),
+                ("Manage Users", self.dummy_function),
+                ("Manage Rooms", self.dummy_function),
+                ("Manage Guests", self.dummy_function),
+                ("Manage Reservations", self.dummy_function),
+                ("Manage Billing", self.dummy_function),
+                ("Manage Charges", self.dummy_function),
+                ("Manage Maintenance Requests", self.dummy_function),
+                ("Manage Housekeeping", self.dummy_function),
+                ("Manage Amenities", self.dummy_function),
+                ("Manage Feedback", self.dummy_function),
+                ("Manage Inventory", self.dummy_function),
+                ("Manage Events", self.dummy_function),
+            ]
+        else:
+            buttons = [
+                ("View Reservations", self.dummy_function),
+                ("Update Room Status", self.dummy_function),
+                ("View Guests", self.dummy_function),
+                ("View Billing", self.dummy_function),
+                ("View Charges", self.dummy_function),
+                ("View Maintenance Requests", self.dummy_function),
+                ("Update Housekeeping", self.dummy_function),
+                ("View Amenities", self.dummy_function),
+                ("View Feedback", self.dummy_function),
+                ("View Inventory", self.dummy_function),
+                ("View Events", self.dummy_function),
+            ]
 
-        manage_staff = tk.Button(admin_frame, text="Manage Staff", font=("Times New Roman", 12), command=self.manage_staff_options)
-        manage_staff.grid(row=0, column=1, padx=10, pady=10)
+        for text, command in buttons:
+            tk.Button(self.nav_frame, text=text, command=command, font=("Arial", 12), width=25).pack(pady=2)
 
-        manage_rooms = tk.Button(admin_frame, text="Manage Rooms", font=("Times New Roman", 12), command=self.manage_rooms_options)
-        manage_rooms.grid(row=0, column=2, padx=10, pady=10)
+        tk.Button(self.nav_frame, text="Logout", command=self.create_login_frame, font=("Arial", 12), width=25).pack(pady=20)
 
-        manage_reservations = tk.Button(admin_frame, text="Manage Reservations", font=("Times New Roman", 12), command=self.manage_reservations_options)
-        manage_reservations.grid(row=0, column=3, padx=10, pady=10)
+    def create_content_frame(self):
+        self.content_frame = tk.Frame(self.root)
+        self.content_frame.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
+        self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_rowconfigure(0, weight=1)
 
-        view_logs = tk.Button(admin_frame, text="View Login Logs", font=("Times New Roman", 12), command=self.manage_login_logs)
-        view_logs.grid(row=0, column=4, padx=10, pady=10)
-
-        self.admin_panel.mainloop()
-
-    def clear_management_frames(self):
-        for widget in self.admin_panel.grid_slaves(row=1, column=0):
-            widget.destroy()
-
-    def manage_staff_options(self):
-        self.clear_management_frames()
-        manage_staff_frame = tk.Frame(self.admin_panel)
-        manage_staff_frame.grid(row=1, column=0, columnspan=7, pady=10)
-
-        manage_staff_lframe = tk.LabelFrame(manage_staff_frame, padx=10, pady=0)
-        manage_staff_lframe.grid(row=1, column=0, columnspan=7, pady=10)
-
-        add_staff_button = tk.Button(manage_staff_lframe, text="Add Staff", font=("Times New Roman", 12), command=None)
-        add_staff_button.grid(row=0, column=0, padx=10, pady=10)
-
-        delete_staff_button = tk.Button(manage_staff_lframe, text="Delete Staff", font=("Times New Roman", 12), command=None)
-        delete_staff_button.grid(row=0, column=1, padx=10, pady=10)
-
-        update_staff_button = tk.Button(manage_staff_lframe, text="Update Staff", font=("Times New Roman", 12), command=None)
-        update_staff_button.grid(row=0, column=2, padx=10, pady=10)
-
-        view_staff_button = tk.Button(manage_staff_lframe, text="View Staff", font=("Times New Roman", 12), command=None)
-        view_staff_button.grid(row=0, column=3, padx=10, pady=10)
-
-    def manage_rooms_options(self):
-        self.clear_management_frames()
-        manage_rooms_frame = tk.Frame(self.admin_panel)
-        manage_rooms_frame.grid(row=1, column=0, columnspan=7, pady=10)
-
-        manage_rooms_lframe = tk.LabelFrame(manage_rooms_frame, padx=10, pady=0)
-        manage_rooms_lframe.grid(row=1, column=0, columnspan=7, pady=10)
-
-        add_room_button = tk.Button(manage_rooms_lframe, text="Add Room", font=("Times New Roman", 12), command=None)
-        add_room_button.grid(row=0, column=0, padx=10, pady=10)
-
-        delete_room_button = tk.Button(manage_rooms_lframe, text="Delete Room", font=("Times New Roman", 12), command=None)
-        delete_room_button.grid(row=0, column=1, padx=10, pady=10)
-
-        update_room_button = tk.Button(manage_rooms_lframe, text="Update Room", font=("Times New Roman", 12), command=None)
-        update_room_button.grid(row=0, column=2, padx=10, pady=10)
-
-        view_room_button = tk.Button(manage_rooms_lframe, text="View Rooms", font=("Times New Roman", 12), command=None)
-        view_room_button.grid(row=0, column=3, padx=10, pady=10)
-
-    def manage_reservations_options(self):
-        self.clear_management_frames()
-        manage_reservations_frame = tk.Frame(self.admin_panel)
-        manage_reservations_frame.grid(row=1, column=0, columnspan=7, pady=10)
-
-        manage_reservations_lframe = tk.LabelFrame(manage_reservations_frame, padx=10, pady=10)
-        manage_reservations_lframe.grid(row=1, column=0, columnspan=7, pady=10)
-
-        add_reservations_button = tk.Button(manage_reservations_lframe, text="Add Reservations", font=("Times New Roman", 12), command=None)
-        add_reservations_button.grid(row=0, column=0, padx=10, pady=10)
-
-        delete_reservations_button = tk.Button(manage_reservations_lframe, text="Delete Reservations", font=("Times New Roman", 12), command=None)
-        delete_reservations_button.grid(row=0, column=1, padx=10, pady=10)
-
-        update_reservations_button = tk.Button(manage_reservations_lframe, text="Update Reservations", font=("Times New Roman", 12), command=None)
-        update_reservations_button.grid(row=0, column=2, padx=10, pady=10)
-
-    def manage_login_logs(self):
-        self.clear_management_frames()
-        manage_login_frame = tk.Frame(self.admin_panel)
-        manage_login_frame.grid(row=1, column=0, columnspan=7, pady=10)
-
-        manage_login_lframe = tk.LabelFrame(manage_login_frame, padx=10, pady=0)
-        manage_login_lframe.grid(row=1, column=0, columnspan=7, pady=10)
-
-        view_login_logs_button = tk.Button(manage_login_lframe, text="View Login Logs", font=("Times New Roman", 12), command=self.view_login_logs)
-        view_login_logs_button.grid(row=0, column=0, padx=10, pady=10)
+    def show_welcome_message(self, user):
+        welcome_message = f"Welcome to the Hotel Management System, {user['name']} {user['surname']}!"
+        tk.Label(self.content_frame, text=welcome_message, font=("Arial", 18)).pack(pady=20)
 
     def view_login_logs(self):
-        cursor = self.db.connection.cursor()
-        cursor.execute("SELECT * FROM Log")
+        self.clear_content_frame()
+        tk.Label(self.content_frame, text="Login Logs", font=("Arial", 18)).pack(pady=10)
+
+        columns = ('log_id', 'username', 'name', 'surname', 'position', 'role', 'login_time')
+        tree = ttk.Treeview(self.content_frame, columns=columns, show='headings')
+        tree.pack(fill=tk.BOTH, expand=True)
+
+        tree.heading('log_id', text='Log ID')
+        tree.heading('username', text='Username')
+        tree.heading('name', text='Name')
+        tree.heading('surname', text='Surname')
+        tree.heading('position', text='Position')
+        tree.heading('role', text='Role')
+        tree.heading('login_time', text='Login Time')
+
+        tree.column('log_id', width=50)
+        tree.column('username', width=100)
+        tree.column('name', width=100)
+        tree.column('surname', width=100)
+        tree.column('position', width=100)
+        tree.column('role', width=100)
+        tree.column('login_time', width=150)
+
+        scrollbar = ttk.Scrollbar(self.content_frame, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        cursor = self.connection.cursor(dictionary=True)
+        query = """
+        SELECT Log.log_id, Users.username, Users.name, Users.surname, Users.position, Users.role, Log.login_time 
+        FROM Log 
+        JOIN Users ON Log.user_id = Users.user_id 
+        ORDER BY Log.login_time DESC
+        """
+        cursor.execute(query)
         logs = cursor.fetchall()
         cursor.close()
+
         for log in logs:
-            print(log)
+            tree.insert('', tk.END, values=(log['log_id'], log['username'], log['name'], log['surname'], log['position'], log['role'], log['login_time']))
 
-class StaffPanel:
-    def __init__(self, db):
-        self.db = db
-        self.staff_panel = tk.Tk()
-        self.setup_staff_panel()
-
-    def setup_staff_panel(self):
-        self.staff_panel.title("Hotel Management System - Staff Panel")
-
-        width = 800
-        height = 600
-        screen_width = self.staff_panel.winfo_screenwidth()
-        screen_height = self.staff_panel.winfo_screenheight()
-        x = (screen_width / 2) - (width / 2)
-        y = (screen_height / 2) - (height / 2)
-        self.staff_panel.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
-
-        staff_frame = tk.LabelFrame(self.staff_panel, padx=10, pady=10, font=("Times New Roman", 12))
-        staff_frame.grid(row=0, column=0, padx=10, pady=10)
-
-        manage_rooms = tk.Button(staff_frame, text="Manage Rooms", font=("Times New Roman", 12), command=self.manage_rooms_options)
-        manage_rooms.grid(row=0, column=1, padx=10, pady=10)
-
-        manage_reservations = tk.Button(staff_frame, text="Manage Reservations", font=("Times New Roman", 12), command=self.manage_reservations_options)
-        manage_reservations.grid(row=0, column=2, padx=10, pady=10)
-
-        self.staff_panel.mainloop()
-
-    def clear_management_frames(self):
-        for widget in self.staff_panel.grid_slaves(row=1, column=0):
+    def clear_frame(self):
+        for widget in self.root.winfo_children():
             widget.destroy()
 
-    def manage_rooms_options(self):
-        self.clear_management_frames()
-        manage_rooms_frame = tk.Frame(self.staff_panel)
-        manage_rooms_frame.grid(row=1, column=0, columnspan=7, pady=10)
+    def clear_content_frame(self):
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
 
-        manage_rooms_lframe = tk.LabelFrame(manage_rooms_frame, padx=10, pady=0)
-        manage_rooms_lframe.grid(row=1, column=0, columnspan=7, pady=10)
-
-        add_room_button = tk.Button(manage_rooms_lframe, text="Add Room", font=("Times New Roman", 12), command=None)
-        add_room_button.grid(row=0, column=0, padx=10, pady=10)
-
-        delete_room_button = tk.Button(manage_rooms_lframe, text="Delete Room", font=("Times New Roman", 12), command=None)
-        delete_room_button.grid(row=0, column=1, padx=10, pady=10)
-
-        update_room_button = tk.Button(manage_rooms_lframe, text="Update Room", font=("Times New Roman", 12), command=None)
-        update_room_button.grid(row=0, column=2, padx=10, pady=10)
-
-        view_room_button = tk.Button(manage_rooms_lframe, text="View Rooms", font=("Times New Roman", 12), command=None)
-        view_room_button.grid(row=0, column=3, padx=10, pady=10)
-
-    def manage_reservations_options(self):
-        self.clear_management_frames()
-        manage_reservations_frame = tk.Frame(self.staff_panel)
-        manage_reservations_frame.grid(row=1, column=0, columnspan=7, pady=10)
-
-        manage_reservations_lframe = tk.LabelFrame(manage_reservations_frame, padx=10, pady=10)
-        manage_reservations_lframe.grid(row=1, column=0, columnspan=7, pady=10)
-
-        add_reservations_button = tk.Button(manage_reservations_lframe, text="Add Reservations", font=("Times New Roman", 12), command=None)
-        add_reservations_button.grid(row=0, column=0, padx=10, pady=10)
-
-        delete_reservations_button = tk.Button(manage_reservations_lframe, text="Delete Reservations", font=("Times New Roman", 12), command=None)
-        delete_reservations_button.grid(row=0, column=1, padx=10, pady=10)
-
-        update_reservations_button = tk.Button(manage_reservations_lframe, text="Update Reservations", font=("Times New Roman", 12), command=None)
-        update_reservations_button.grid(row=0, column=2, padx=10, pady=10)
+    def dummy_function(self):
+        messagebox.showinfo("Info", "This functionality is not implemented yet.")
 
 if __name__ == "__main__":
-    db = Database(
-        host="localhost",
-        user="root",
-        password="tarik7172",
-        port=3306,
-        database="NHMS"
-    )
-
-    LoginApp(db)
+    root = tk.Tk()
+    app = HotelManagementSystem(root)
+    root.mainloop()
