@@ -62,14 +62,14 @@ class HotelManagementSystem:
         cursor.close()
 
     def create_admin_panel(self, user):
-        self.clear_frame()
-        self.create_navbar(user, is_admin=True)
-        self.create_content_frame()
-        self.show_welcome_message(user)
+        self.create_main_panel(user, is_admin=True)
 
     def create_staff_panel(self, user):
+        self.create_main_panel(user, is_admin=False)
+
+    def create_main_panel(self, user, is_admin):
         self.clear_frame()
-        self.create_navbar(user, is_admin=False)
+        self.create_navbar(user, is_admin)
         self.create_content_frame()
         self.show_welcome_message(user)
 
@@ -84,28 +84,28 @@ class HotelManagementSystem:
             self.add_nav_button("View Login Logs", self.view_login_logs)
             self.add_nav_button("Manage Users", lambda: self.show_sub_options("Manage Users", self.admin_user_options()))
             self.add_nav_button("Manage Rooms", lambda: self.show_sub_options("Manage Rooms", self.admin_rooms_options()))
-            self.add_nav_button("Manage Guests", lambda: self.show_sub_options("Manage Guests", self.dummy_sub_options()))
-            self.add_nav_button("Manage Reservations", lambda: self.show_sub_options("Manage Reservations", self.dummy_sub_options()))
-            self.add_nav_button("Manage Billing", lambda: self.show_sub_options("Manage Billing", self.dummy_sub_options()))
-            self.add_nav_button("Manage Charges", lambda: self.show_sub_options("Manage Charges", self.dummy_sub_options()))
-            self.add_nav_button("Manage Maintenance Requests", lambda: self.show_sub_options("Manage Maintenance Requests", self.dummy_sub_options()))
-            self.add_nav_button("Manage Housekeeping", lambda: self.show_sub_options("Manage Housekeeping", self.dummy_sub_options()))
-            self.add_nav_button("Manage Amenities", lambda: self.show_sub_options("Manage Amenities", self.dummy_sub_options()))
-            self.add_nav_button("Manage Feedback", lambda: self.show_sub_options("Manage Feedback", self.dummy_sub_options()))
-            self.add_nav_button("Manage Inventory", lambda: self.show_sub_options("Manage Inventory", self.dummy_sub_options()))
-            self.add_nav_button("Manage Events", lambda: self.show_sub_options("Manage Events", self.dummy_sub_options()))
+            self.add_nav_button("Manage Guests", lambda: self.show_sub_options("Manage Guests", self.admin_guests_options()))
+            self.add_nav_button("Manage Reservations", lambda: self.show_sub_options("Manage Reservations", self.admin_reservations_options()))
+            self.add_nav_button("Manage Billing", lambda: self.show_sub_options("Manage Billing", self.admin_billing_options()))
+            self.add_nav_button("Manage Charges", lambda: self.show_sub_options("Manage Charges", self.admin_charges_options()))
+            self.add_nav_button("Manage Maintenance Requests", lambda: self.show_sub_options("Manage Maintenance Requests", self.admin_maintenance_options()))
+            self.add_nav_button("Manage Housekeeping", lambda: self.show_sub_options("Manage Housekeeping", self.admin_housekeeping_options()))
+            self.add_nav_button("Manage Amenities", lambda: self.show_sub_options("Manage Amenities", self.admin_amenities_options()))
+            self.add_nav_button("Manage Feedback", lambda: self.show_sub_options("Manage Feedback", self.admin_feedback_options()))
+            self.add_nav_button("Manage Inventory", lambda: self.show_sub_options("Manage Inventory", self.admin_inventory_options()))
+            self.add_nav_button("Manage Events", lambda: self.show_sub_options("Manage Events", self.admin_events_options()))
         else:
-            self.add_nav_button("View Reservations", lambda: self.show_sub_options("View Reservations", self.dummy_sub_options()))
-            self.add_nav_button("Update Room Status", lambda: self.show_sub_options("Update Room Status", self.dummy_sub_options()))
-            self.add_nav_button("View Guests", lambda: self.show_sub_options("View Guests", self.dummy_sub_options()))
-            self.add_nav_button("View Billing", lambda: self.show_sub_options("View Billing", self.dummy_sub_options()))
-            self.add_nav_button("View Charges", lambda: self.show_sub_options("View Charges", self.dummy_sub_options()))
-            self.add_nav_button("View Maintenance Requests", lambda: self.show_sub_options("View Maintenance Requests", self.dummy_sub_options()))
-            self.add_nav_button("Update Housekeeping", lambda: self.show_sub_options("Update Housekeeping", self.dummy_sub_options()))
-            self.add_nav_button("View Amenities", lambda: self.show_sub_options("View Amenities", self.dummy_sub_options()))
-            self.add_nav_button("View Feedback", lambda: self.show_sub_options("View Feedback", self.dummy_sub_options()))
-            self.add_nav_button("View Inventory", lambda: self.show_sub_options("View Inventory", self.dummy_sub_options()))
-            self.add_nav_button("View Events", lambda: self.show_sub_options("View Events", self.dummy_sub_options()))
+            self.add_nav_button("Manage Reservations", lambda: self.show_sub_options("Manage Reservations", self.staff_reservations_options()))
+            self.add_nav_button("Manage Room Status", lambda: self.show_sub_options("Manage Room Status", self.staff_room_status_options()))
+            self.add_nav_button("Manage Guests", lambda: self.show_sub_options("Manage Guests", self.staff_guests_options()))
+            self.add_nav_button("Manage Billing", lambda: self.show_sub_options("Manage Billing", self.staff_billing_options()))
+            self.add_nav_button("Manage Charges", lambda: self.show_sub_options("Manage Charges", self.staff_charges_options()))
+            self.add_nav_button("Manage Maintenance Requests", lambda: self.show_sub_options("Manage Maintenance Requests", self.staff_maintenance_options()))
+            self.add_nav_button("Manage Housekeeping", lambda: self.show_sub_options("Manage Housekeeping", self.staff_housekeeping_options()))
+            self.add_nav_button("Manage Amenities", lambda: self.show_sub_options("Manage Amenities", self.staff_amenities_options()))
+            self.add_nav_button("Manage Feedback", lambda: self.show_sub_options("Manage Feedback", self.staff_feedback_options()))
+            self.add_nav_button("Manage Inventory", lambda: self.show_sub_options("Manage Inventory", self.staff_inventory_options()))
+            self.add_nav_button("Manage Events", lambda: self.show_sub_options("Manage Events", self.staff_events_options()))
 
         tk.Button(self.nav_frame, text="Logout", command=self.create_login_frame, font=("Arial", 12), width=25).pack(pady=20)
 
@@ -184,14 +184,165 @@ class HotelManagementSystem:
             "Add Room": self.dummy_function,
             "Delete Room": self.dummy_function,
             "Update Room": self.dummy_function,
-            "View Rooms": self.dummy_function, # View everything about rooms; maintaince, housekeeping, reservations, occupancy etc.
+            "View Rooms": self.dummy_function, 
         }
 
-    def dummy_sub_options(self):
+    def admin_guests_options(self):
         return {
-            "Sub Option 1": self.dummy_function,
-            "Sub Option 2": self.dummy_function,
-            "Sub Option 3": self.dummy_function,
+            "Add Guest": self.dummy_function,
+            "Delete Guest": self.dummy_function,
+            "Update Guest": self.dummy_function,
+            "View Guests": self.dummy_function,
+        }
+
+    def admin_reservations_options(self):
+        return {
+            "Add Reservation": self.dummy_function,
+            "Cancel Reservation": self.dummy_function,
+            "Update Reservation": self.dummy_function,
+            "View Reservations": self.dummy_function,
+        }
+
+    def admin_billing_options(self):
+        return {
+            "Generate Bill": self.dummy_function,
+            "Update Bill": self.dummy_function,
+            "View Bills": self.dummy_function,
+        }
+
+    def admin_charges_options(self):
+        return {
+            "Add Charge": self.dummy_function,
+            "Delete Charge": self.dummy_function,
+            "Update Charge": self.dummy_function,
+            "View Charges": self.dummy_function,
+        }
+
+    def admin_maintenance_options(self):
+        return {
+            "Add Maintenance Request": self.dummy_function,
+            "Delete Maintenance Request": self.dummy_function,
+            "Update Maintenance Request": self.dummy_function,
+            "View Maintenance Requests": self.dummy_function,
+        }
+
+    def admin_housekeeping_options(self):
+        return {
+            "Add Housekeeping Task": self.dummy_function,
+            "Delete Housekeeping Task": self.dummy_function,
+            "Update Housekeeping Task": self.dummy_function,
+            "View Housekeeping Tasks": self.dummy_function,
+        }
+
+    def admin_amenities_options(self):
+        return {
+            "Add Amenity": self.dummy_function,
+            "Delete Amenity": self.dummy_function,
+            "Update Amenity": self.dummy_function,
+            "View Amenities": self.dummy_function,
+        }
+
+    def admin_feedback_options(self):
+        return {
+            "View Feedback": self.dummy_function,
+        }
+
+    def admin_inventory_options(self):
+        return {
+            "Add Inventory Item": self.dummy_function,
+            "Delete Inventory Item": self.dummy_function,
+            "Update Inventory Item": self.dummy_function,
+            "View Inventory": self.dummy_function,
+        }
+
+    def admin_events_options(self):
+        return {
+            "Add Event": self.dummy_function,
+            "Delete Event": self.dummy_function,
+            "Update Event": self.dummy_function,
+            "View Events": self.dummy_function,
+        }
+
+    def staff_reservations_options(self):
+        return {
+            "Add Reservation": self.dummy_function,
+            "Cancel Reservation": self.dummy_function,
+            "Update Reservation": self.dummy_function,
+            "View Reservations": self.dummy_function,
+        }
+
+    def staff_room_status_options(self):
+        return {
+            "Update Room Status": self.dummy_function,
+            "View Room Status": self.dummy_function,
+        }
+
+    def staff_guests_options(self):
+        return {
+            "Add Guest": self.dummy_function,
+            "Delete Guest": self.dummy_function,
+            "Update Guest": self.dummy_function,
+            "View Guests": self.dummy_function,
+        }
+
+    def staff_billing_options(self):
+        return {
+            "Generate Bill": self.dummy_function,
+            "Update Bill": self.dummy_function,
+            "View Bills": self.dummy_function,
+        }
+
+    def staff_charges_options(self):
+        return {
+            "Add Charge": self.dummy_function,
+            "Delete Charge": self.dummy_function,
+            "Update Charge": self.dummy_function,
+            "View Charges": self.dummy_function,
+        }
+
+    def staff_maintenance_options(self):
+        return {
+            "Add Maintenance Request": self.dummy_function,
+            "Delete Maintenance Request": self.dummy_function,
+            "Update Maintenance Request": self.dummy_function,
+            "View Maintenance Requests": self.dummy_function,
+        }
+
+    def staff_housekeeping_options(self):
+        return {
+            "Add Housekeeping Task": self.dummy_function,
+            "Delete Housekeeping Task": self.dummy_function,
+            "Update Housekeeping Task": self.dummy_function,
+            "View Housekeeping Tasks": self.dummy_function,
+        }
+
+    def staff_amenities_options(self):
+        return {
+            "Add Amenity": self.dummy_function,
+            "Delete Amenity": self.dummy_function,
+            "Update Amenity": self.dummy_function,
+            "View Amenities": self.dummy_function,
+        }
+
+    def staff_feedback_options(self):
+        return {
+            "View Feedback": self.dummy_function,
+        }
+
+    def staff_inventory_options(self):
+        return {
+            "Add Inventory Item": self.dummy_function,
+            "Delete Inventory Item": self.dummy_function,
+            "Update Inventory Item": self.dummy_function,
+            "View Inventory": self.dummy_function,
+        }
+
+    def staff_events_options(self):
+        return {
+            "Add Event": self.dummy_function,
+            "Delete Event": self.dummy_function,
+            "Update Event": self.dummy_function,
+            "View Events": self.dummy_function,
         }
 
     def clear_frame(self):

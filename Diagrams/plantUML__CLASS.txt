@@ -1,0 +1,230 @@
+@startuml
+left to right direction
+
+class HotelManagementSystem {
+  -root: tk.Tk
+  -connection: mysql.connector.connect
+  -login_frame: tk.Frame
+  -username_entry: tk.Entry
+  -password_entry: tk.Entry
+  -nav_frame: tk.Frame
+  -content_frame: tk.Frame
+
+  +__init__(root)
+  +create_login_frame()
+  +login()
+  +log_login(user_id)
+  +create_admin_panel(user)
+  +create_staff_panel(user)
+  +create_main_panel(user, is_admin)
+  +create_navbar(user, is_admin)
+  +add_nav_button(text, command)
+  +create_content_frame()
+  +show_welcome_message(user)
+  +view_login_logs()
+  +show_sub_options(main_option, sub_options)
+  +admin_user_options()
+  +admin_rooms_options()
+  +admin_guests_options()
+  +admin_reservations_options()
+  +admin_billing_options()
+  +admin_charges_options()
+  +admin_maintenance_options()
+  +admin_housekeeping_options()
+  +admin_amenities_options()
+  +admin_feedback_options()
+  +admin_inventory_options()
+  +admin_events_options()
+  +staff_reservations_options()
+  +staff_room_status_options()
+  +staff_guests_options()
+  +staff_billing_options()
+  +staff_charges_options()
+  +staff_maintenance_options()
+  +staff_housekeeping_options()
+  +staff_amenities_options()
+  +staff_feedback_options()
+  +staff_inventory_options()
+  +staff_events_options()
+  +clear_frame()
+  +clear_content_frame()
+  +dummy_function()
+}
+
+class User {
+  user_id: int
+  name: varchar
+  surname: varchar
+  position: varchar
+  role: enum('admin', 'staff')
+  username: varchar
+  password: varchar
+  phone: varchar
+  address: varchar
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Room {
+  room_id: int
+  room_number: int
+  type: varchar
+  status: varchar
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Guest {
+  guest_id: int
+  first_name: varchar
+  last_name: varchar
+  email: varchar
+  phone: varchar
+  address: varchar
+  preferences: text
+  past_stays: text
+  id_type: varchar
+  id_number: varchar
+  issued_country: varchar
+  expiry_date: date
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Reservation {
+  reservation_id: int
+  room_id: int
+  guest_id: int
+  start_date: date
+  end_date: date
+  status: varchar
+  payment_status: varchar
+  special_requests: text
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Billing {
+  bill_id: int
+  guest_id: int
+  amount: decimal
+  bill_contents: text
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Log {
+  log_id: int
+  user_id: int
+  login_time: datetime
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Charge {
+  charge_id: int
+  guest_id: int
+  description: text
+  amount: decimal
+  charge_date: datetime
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class MaintenanceRequest {
+  request_id: int
+  room_id: int
+  issue_description: text
+  status: varchar
+  request_date: datetime
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Housekeeping {
+  housekeeping_id: int
+  room_id: int
+  task_description: text
+  task_date: datetime
+  status: varchar
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Amenity {
+  amenity_id: int
+  name: varchar
+  description: text
+  availability_status: varchar
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Feedback {
+  feedback_id: int
+  guest_id: int
+  comments: text
+  rating: int
+  feedback_date: datetime
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Inventory {
+  inventory_id: int
+  item_name: varchar
+  quantity: int
+  status: varchar
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+class Event {
+  event_id: int
+  name: varchar
+  description: text
+  start_date: datetime
+  end_date: datetime
+  organizer: varchar
+  location_id: int
+  created_by: int
+  updated_by: int
+  created_at: datetime
+  updated_at: datetime
+}
+
+HotelManagementSystem "1" --> "*" User : created_by, updated_by
+HotelManagementSystem "1" --> "*" Room : created_by, updated_by
+HotelManagementSystem "1" --> "*" Guest : created_by, updated_by
+HotelManagementSystem "1" --> "*" Reservation : created_by, updated_by
+HotelManagementSystem "1" --> "*" Billing : created_by, updated_by
+HotelManagementSystem "1" --> "*" Log : user_id
+HotelManagementSystem "1" --> "*" Charge : created_by, updated_by
+HotelManagementSystem "1" --> "*" MaintenanceRequest : created_by, updated_by
+HotelManagementSystem "1" --> "*" Housekeeping : created_by, updated_by
+HotelManagementSystem "1" --> "*" Amenity : created_by, updated_by
+HotelManagementSystem "1" --> "*" Feedback : created_by, updated_by
+HotelManagementSystem "1" --> "*" Inventory : created_by, updated_by
+HotelManagementSystem "1" --> "*" Event : created_by, updated_by
+
+@enduml
